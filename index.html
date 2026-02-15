@@ -1,1 +1,1084 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&family=DM+Mono:wght@300;400;500&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>PersonaCore — Kişisel Mobil Çekirdek Modülü</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg:#f5f3ef;
+  --bg2:#edeae3;
+  --bg3:#e6e2da;
+  --white:#fff;
+  --ink:#1a1714;
+  --ink2:#2e2b27;
+  --mid:#7a746c;
+  --soft:#a09a90;
+  --border:#d8d3ca;
+  --border2:#c8c2b8;
+  --accent:#2952e3;
+  --accent-light:#eef1fd;
+  --accent2:#d63a1f;
+  --accent2-light:#fdf0ed;
+  --accent3:#1a9e6b;
+  --accent3-light:#e8f7f2;
+  --gold:#b07d22;
+  --gold-light:#fdf6e7;
+  --purple:#6b46c1;
+  --purple-light:#f3f0fb;
+  --sans:'Plus Jakarta Sans',sans-serif;
+  --serif:'Fraunces',serif;
+  --mono:'DM Mono',monospace;
+  --ease:cubic-bezier(.25,.46,.45,.94);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --shadow:0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+  --shadow-lg:0 2px 8px rgba(0,0,0,.06), 0 12px 40px rgba(0,0,0,.08);
+}
+
+html{scroll-behavior:smooth;font-size:16px}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:20px 56px;background:rgba(245,243,239,.88);backdrop-filter:blur(20px) saturate(160%);border-bottom:1px solid transparent;transition:all .3s var(--ease)}
+nav.scrolled{padding:14px 56px;border-bottom-color:var(--border);background:rgba(245,243,239,.97)}
+.nav-brand{font-family:var(--serif);font-size:20px;font-weight:600;color:var(--ink);text-decoration:none;letter-spacing:-.3px}
+.nav-brand em{color:var(--accent);font-style:italic}
+.nav-links{display:flex;gap:36px;list-style:none;align-items:center}
+.nav-links a{font-family:var(--mono);font-size:10.5px;letter-spacing:1.8px;text-transform:uppercase;color:var(--mid);text-decoration:none;transition:color .2s;position:relative}
+.nav-links a:hover{color:var(--ink)}
+.nav-cta{background:var(--ink)!important;color:var(--white)!important;padding:8px 20px!important;border-radius:6px!important;letter-spacing:1px!important}
+.nav-cta:hover{background:var(--accent)!important}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
+.hamburger span{display:block;width:22px;height:1.5px;background:var(--ink);transition:all .3s var(--ease);transform-origin:center}
+.hamburger.open span:nth-child(1){transform:rotate(45deg) translate(4.5px,4.5px)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(4.5px,-4.5px)}
+.mobile-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:400;background:rgba(245,243,239,.98);backdrop-filter:blur(24px);flex-direction:column;align-items:center;justify-content:center;gap:28px}
+.mobile-menu.open{display:flex}
+.mobile-menu a{font-family:var(--serif);font-size:26px;font-weight:400;color:var(--mid);text-decoration:none;transition:color .2s}
+.mobile-menu a:hover{color:var(--ink)}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .8s var(--ease-out),transform .8s var(--ease-out)}
+.reveal.in{opacity:1;transform:none}
+.reveal-l{opacity:0;transform:translateX(-28px);transition:opacity .8s var(--ease-out),transform .8s var(--ease-out)}
+.reveal-l.in{opacity:1;transform:none}
+.reveal-r{opacity:0;transform:translateX(28px);transition:opacity .8s var(--ease-out),transform .8s var(--ease-out)}
+.reveal-r.in{opacity:1;transform:none}
+.delay-1{transition-delay:.1s}.delay-2{transition-delay:.2s}.delay-3{transition-delay:.3s}.delay-4{transition-delay:.4s}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:140px 24px 100px;text-align:center;position:relative;overflow:hidden;background:var(--bg)}
+.hero-texture{position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px, rgba(0,0,0,.06) 1px, transparent 0);background-size:32px 32px;opacity:.5;pointer-events:none}
+.hero-glow{position:absolute;width:640px;height:640px;border-radius:50%;background:radial-gradient(circle,rgba(41,82,227,.06) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-60%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);border:1px solid var(--border);padding:7px 18px;border-radius:100px;margin-bottom:40px;background:var(--white);box-shadow:var(--shadow);animation:fadeUp .9s var(--ease-out) both}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:bpulse 2.5s infinite}
+@keyframes bpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.hero h1{font-family:var(--serif);font-size:clamp(60px,10vw,108px);font-weight:300;letter-spacing:-4px;line-height:.92;margin-bottom:32px;animation:fadeUp .9s .1s var(--ease-out) both;color:var(--ink)}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero-sub{font-size:clamp(15px,1.8vw,18px);font-weight:400;color:var(--mid);max-width:540px;margin:0 auto 56px;line-height:1.8;animation:fadeUp .9s .2s var(--ease-out) both}
+.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;animation:fadeUp .9s .3s var(--ease-out) both}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:7px;font-size:13px;font-weight:600;font-family:var(--sans);text-decoration:none;transition:all .25s var(--ease);letter-spacing:.2px;border:none;cursor:pointer}
+.btn-primary{background:var(--ink);color:var(--white)}
+.btn-primary:hover{background:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(41,82,227,.25)}
+.btn-ghost{border:1px solid var(--border2);color:var(--ink);background:var(--white)}
+.btn-ghost:hover{border-color:var(--ink);transform:translateY(-2px);box-shadow:var(--shadow)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+/* HERO DIAGRAM */
+.diagram-wrap{margin-top:72px;width:100%;max-width:800px;animation:fadeUp .9s .45s var(--ease-out) both}
+.diagram{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:32px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+.diagram::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--purple),var(--accent3))}
+.dtag{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:4px;margin-bottom:14px}
+.dtag.core{background:var(--accent-light);color:var(--accent);border:1px solid rgba(41,82,227,.18)}
+.dtag.host{background:var(--accent3-light);color:var(--accent3);border:1px solid rgba(26,158,107,.2)}
+.chips-row{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.chip{flex:1;min-width:80px;background:var(--accent-light);border:1px solid rgba(41,82,227,.18);border-radius:10px;padding:12px 8px;text-align:center;transition:all .25s var(--ease)}
+.chip:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 4px 16px rgba(41,82,227,.12)}
+.chip-lbl{font-family:var(--mono);font-size:8px;letter-spacing:.8px;text-transform:uppercase;color:var(--accent);opacity:.7;margin-bottom:5px}
+.chip-val{font-size:13px;font-weight:600;color:var(--ink)}
+.chip-sub{font-family:var(--mono);font-size:8px;color:var(--soft);margin-top:2px}
+.chip-os{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;margin-bottom:10px;font-family:var(--mono);font-size:11px;color:var(--mid)}
+.conn{display:flex;align-items:center;gap:12px;padding:14px 0;font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--soft)}
+.conn-line{flex:1;height:1px;background:var(--border);position:relative;overflow:hidden}
+.conn-line::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:connFlow 3s ease-in-out infinite}
+@keyframes connFlow{0%{left:-60%}100%{left:160%}}
+.hchip{flex:1;min-width:80px;background:var(--accent3-light);border:1px solid rgba(26,158,107,.2);border-radius:10px;padding:12px 8px;text-align:center;transition:all .25s var(--ease)}
+.hchip:hover{border-color:var(--accent3);transform:translateY(-2px)}
+.hchip .chip-lbl{color:var(--accent3)}
+
+/* COUNTER BAND */
+.counter-band{background:var(--ink);color:var(--white);padding:72px 56px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0}
+.counter-item{padding:32px;text-align:center;border-right:1px solid rgba(255,255,255,.08)}
+.counter-item:last-child{border-right:none}
+.counter-num{font-family:var(--serif);font-size:54px;font-weight:300;font-style:italic;color:var(--white);letter-spacing:-2px;line-height:1;margin-bottom:10px;display:flex;align-items:baseline;justify-content:center;gap:3px}
+.counter-suffix{font-size:30px}
+.counter-label{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.38);max-width:180px;margin:0 auto;line-height:1.6;letter-spacing:.5px}
+
+/* SECTIONS */
+.sec{padding:108px 56px;max-width:1240px;margin:0 auto}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:9.5px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
+.eyebrow::before{content:'';width:16px;height:1px;background:var(--accent)}
+h2.sec-title{font-family:var(--serif);font-size:clamp(36px,5vw,58px);font-weight:300;letter-spacing:-2px;line-height:1.05;margin-bottom:22px;color:var(--ink)}
+h2.sec-title em{font-style:italic;color:var(--accent)}
+p.sec-desc{font-size:clamp(14px,1.4vw,17px);line-height:1.8;color:var(--mid);max-width:720px;margin-bottom:60px}
+
+/* FEATURES GRID */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:28px}
+.feat-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:40px 32px;transition:all .3s var(--ease)}
+.feat-card:hover{border-color:var(--border2);transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.feat-icon{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:24px;position:relative;overflow:hidden}
+.feat-icon.blue{background:var(--accent-light);color:var(--accent)}
+.feat-icon.green{background:var(--accent3-light);color:var(--accent3)}
+.feat-icon.red{background:var(--accent2-light);color:var(--accent2)}
+.feat-icon.purple{background:var(--purple-light);color:var(--purple)}
+.feat-icon.gold{background:var(--gold-light);color:var(--gold)}
+.feat-icon::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.6),transparent);opacity:0;transition:opacity .3s}
+.feat-card:hover .feat-icon::before{opacity:1}
+.feat-title{font-family:var(--serif);font-size:22px;font-weight:400;margin-bottom:14px;color:var(--ink)}
+.feat-desc{font-size:14px;line-height:1.7;color:var(--mid)}
+
+/* PRODUCT SHOWCASE */
+.prod-showcase{display:grid;grid-template-columns:1fr;gap:80px;padding:108px 56px;max-width:1240px;margin:0 auto}
+.prod-item{display:grid;grid-template-columns:repeat(2,1fr);gap:60px;align-items:center}
+.prod-item:nth-child(even){direction:rtl}
+.prod-item:nth-child(even)>*{direction:ltr}
+.prod-content h3{font-family:var(--serif);font-size:clamp(32px,4vw,48px);font-weight:300;letter-spacing:-2px;margin-bottom:20px;color:var(--ink)}
+.prod-content h3 em{font-style:italic;color:var(--accent)}
+.prod-content p{font-size:16px;line-height:1.8;color:var(--mid);margin-bottom:32px}
+.prod-specs{display:flex;flex-direction:column;gap:16px}
+.spec-item{display:flex;align-items:flex-start;gap:14px;padding:16px;background:var(--bg2);border-radius:10px;transition:background .3s}
+.spec-item:hover{background:var(--bg3)}
+.spec-icon{width:40px;height:40px;border-radius:8px;background:var(--white);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.spec-text{flex:1}
+.spec-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--soft);margin-bottom:4px}
+.spec-value{font-size:15px;font-weight:600;color:var(--ink)}
+
+/* MODERN PRODUCT IMAGE CAROUSEL */
+.prod-visual{position:relative;perspective:1000px}
+.prod-img-carousel{position:relative;width:100%;aspect-ratio:1;background:var(--white);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:var(--shadow-lg)}
+.prod-img-slide{position:absolute;inset:0;opacity:0;transform:scale(.95);transition:all .5s var(--ease-out);pointer-events:none}
+.prod-img-slide.active{opacity:1;transform:scale(1);pointer-events:auto}
+.prod-img-slide img{width:100%;height:100%;object-fit:cover}
+
+/* CAROUSEL NAVIGATION ARROWS */
+.carousel-nav{position:absolute;top:50%;left:0;right:0;transform:translateY(-50%);display:flex;justify-content:space-between;padding:0 20px;pointer-events:none;z-index:10}
+.carousel-arrow{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.95);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s var(--ease);pointer-events:auto;box-shadow:var(--shadow)}
+.carousel-arrow:hover{background:var(--accent);color:var(--white);border-color:var(--accent);transform:scale(1.1);box-shadow:0 4px 20px rgba(41,82,227,.3)}
+.carousel-arrow svg{width:20px;height:20px;stroke:currentColor;stroke-width:2;fill:none}
+.carousel-arrow:active{transform:scale(.95)}
+
+/* CAROUSEL DOTS */
+.prod-img-dots{display:flex;gap:8px;justify-content:center;margin-top:24px}
+.pdot{width:10px;height:10px;border-radius:50%;background:var(--border);cursor:pointer;transition:all .3s var(--ease);border:2px solid transparent}
+.pdot:hover{background:var(--border2);transform:scale(1.2)}
+.pdot.active{background:var(--accent);transform:scale(1.3);border-color:var(--accent-light)}
+
+/* COMPARISON TABLE */
+.comparison-table{background:var(--white);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:var(--shadow-lg)}
+.comp-head{background:linear-gradient(135deg,var(--ink),var(--ink2));color:var(--white);padding:32px;text-align:center}
+.comp-head h3{font-family:var(--serif);font-size:32px;font-weight:300;letter-spacing:-1px}
+.comp-grid{display:grid;grid-template-columns:2fr repeat(3,1fr);border-top:1px solid var(--border)}
+.comp-row{display:contents}
+.comp-cell{padding:20px 24px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;text-align:center;font-size:14px;transition:background .3s}
+.comp-cell:last-child{border-right:none}
+.comp-row:last-child .comp-cell{border-bottom:none}
+.comp-cell.head{background:var(--bg2);font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;font-weight:600;color:var(--ink);justify-content:flex-start}
+.comp-cell.highlight{background:var(--accent-light);color:var(--accent);font-weight:600}
+.comp-cell:hover{background:var(--bg)}
+.check{color:var(--accent3);font-size:20px}
+.cross{color:var(--soft);font-size:18px;opacity:.4}
+
+/* SWOT GRID */
+.swot-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+.swot-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:36px;position:relative;overflow:hidden}
+.swot-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.swot-card.strengths::before{background:var(--accent3)}
+.swot-card.weaknesses::before{background:var(--accent2)}
+.swot-card.opportunities::before{background:var(--accent)}
+.swot-card.threats::before{background:var(--purple)}
+.swot-title{font-family:var(--serif);font-size:24px;font-weight:400;margin-bottom:20px;color:var(--ink)}
+.swot-list{list-style:none}
+.swot-list li{padding:12px 0;border-bottom:1px solid var(--border);font-size:14px;line-height:1.6;color:var(--mid);display:flex;align-items:flex-start;gap:12px}
+.swot-list li:last-child{border-bottom:none}
+.swot-list li::before{content:'•';color:var(--accent);font-size:20px;line-height:1;flex-shrink:0}
+
+/* EXPLODED VIEW */
+.exploded-sec{background:linear-gradient(180deg,var(--bg),var(--bg3));padding:108px 56px;perspective:1200px}
+.exp-container{max-width:900px;margin:0 auto}
+.exp-stack{transform-style:preserve-3d;transform:rotateX(18deg) rotateY(-10deg);transition:transform .15s ease-out}
+.exp-layer{position:relative;background:var(--white);border:1px solid var(--border2);border-radius:16px;padding:32px;margin-bottom:20px;box-shadow:var(--shadow-lg);transition:all .3s var(--ease);transform-style:preserve-3d}
+.exp-layer:hover{border-color:var(--accent);box-shadow:0 8px 40px rgba(41,82,227,.15);transform:translateZ(16px)}
+.exp-layer-title{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.exp-layer-desc{font-size:15px;color:var(--ink);line-height:1.6}
+.exp-layer:nth-child(1){transform:translateZ(160px)}
+.exp-layer:nth-child(2){transform:translateZ(120px)}
+.exp-layer:nth-child(3){transform:translateZ(80px)}
+.exp-layer:nth-child(4){transform:translateZ(40px)}
+.exp-layer:nth-child(5){transform:translateZ(0px)}
+
+/* BLUEPRINT */
+.blueprint-sec{background:var(--ink);color:var(--white);padding:108px 56px;position:relative;overflow:hidden}
+.blueprint-sec::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:40px 40px;opacity:.3}
+.blueprint-diagram{max-width:1000px;margin:60px auto 0;background:rgba(255,255,255,.03);border:2px solid rgba(255,255,255,.1);border-radius:20px;padding:48px;position:relative}
+.bp-element{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:24px;margin-bottom:20px;transition:all .3s var(--ease)}
+.bp-element:hover{background:rgba(41,82,227,.15);border-color:var(--accent);transform:translateX(8px)}
+.bp-element-title{font-family:var(--mono);font-size:12px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:8px}
+.bp-element-name{font-size:20px;font-weight:600;color:var(--white);margin-bottom:6px}
+.bp-element-spec{font-family:var(--mono);font-size:12px;color:rgba(255,255,255,.6)}
+
+/* ROADMAP */
+.roadmap-timeline{position:relative;padding-left:60px}
+.roadmap-timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--accent),var(--purple),var(--accent3))}
+.roadmap-phase{position:relative;margin-bottom:56px}
+.roadmap-phase::before{content:'';position:absolute;left:-47px;top:8px;width:16px;height:16px;border-radius:50%;background:var(--accent);border:3px solid var(--bg);box-shadow:0 0 0 4px var(--accent-light)}
+.roadmap-phase:nth-child(2)::before{background:var(--purple);box-shadow:0 0 0 4px var(--purple-light)}
+.roadmap-phase:nth-child(3)::before{background:var(--accent3);box-shadow:0 0 0 4px var(--accent3-light)}
+.roadmap-date{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.roadmap-title{font-family:var(--serif);font-size:28px;font-weight:400;color:var(--ink);margin-bottom:12px}
+.roadmap-desc{font-size:15px;line-height:1.8;color:var(--mid);margin-bottom:20px}
+.roadmap-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.roadmap-item{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;font-size:13px;color:var(--ink);transition:all .3s var(--ease)}
+.roadmap-item:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow)}
+.roadmap-item::before{content:'✓';color:var(--accent);margin-right:8px;font-weight:bold}
+
+/* SDG SECTION */
+.sdg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px}
+.sdg-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:28px;text-align:center;transition:all .3s var(--ease)}
+.sdg-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--accent)}
+.sdg-icon{width:72px;height:72px;margin:0 auto 20px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:36px;background:var(--accent-light);color:var(--accent)}
+.sdg-card:nth-child(2) .sdg-icon{background:var(--accent3-light);color:var(--accent3)}
+.sdg-card:nth-child(3) .sdg-icon{background:var(--gold-light);color:var(--gold)}
+.sdg-card:nth-child(4) .sdg-icon{background:var(--purple-light);color:var(--purple)}
+.sdg-title{font-family:var(--serif);font-size:18px;font-weight:400;margin-bottom:12px;color:var(--ink)}
+.sdg-desc{font-size:13px;line-height:1.6;color:var(--mid)}
+
+/* CONTACT */
+.contact-sec{background:linear-gradient(135deg,var(--accent),var(--purple));color:var(--white);padding:108px 56px}
+.contact-container{max-width:720px;margin:0 auto;text-align:center}
+.contact-container h2{font-family:var(--serif);font-size:clamp(36px,5vw,52px);font-weight:300;letter-spacing:-2px;margin-bottom:20px}
+.contact-container p{font-size:17px;line-height:1.8;margin-bottom:40px;opacity:.9}
+.contact-form{display:grid;gap:16px}
+.form-group{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.form-input{padding:16px 20px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:var(--white);font-size:15px;font-family:var(--sans);transition:all .3s var(--ease)}
+.form-input::placeholder{color:rgba(255,255,255,.5)}
+.form-input:focus{outline:none;border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.12)}
+textarea.form-input{resize:vertical;min-height:120px}
+.btn-white{background:var(--white);color:var(--accent);padding:16px 36px;border-radius:10px;font-size:15px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all .3s var(--ease);border:none;cursor:pointer;margin-top:8px}
+.btn-white:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,.15)}
+
+/* FOOTER */
+footer{background:var(--ink);color:var(--white);padding:72px 56px 40px}
+.footer-top{display:grid;grid-template-columns:2fr repeat(3,1fr);gap:60px;margin-bottom:60px}
+.footer-brand{font-family:var(--serif);font-size:24px;font-weight:600;margin-bottom:16px}
+.footer-brand em{color:var(--accent);font-style:italic}
+.footer-about{font-size:14px;line-height:1.7;color:rgba(255,255,255,.5);margin-bottom:24px;max-width:280px}
+.footer-socials{display:flex;gap:12px}
+.fsoc{width:36px;height:36px;border:1px solid rgba(255,255,255,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.6);text-decoration:none;transition:all .3s var(--ease);font-size:14px}
+.fsoc:hover{border-color:var(--accent);background:var(--accent);color:var(--white)}
+.footer-col-title{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:20px}
+.footer-col-links{list-style:none}
+.footer-col-links li{margin-bottom:12px}
+.footer-col-links a{color:rgba(255,255,255,.6);font-size:14px;text-decoration:none;transition:color .3s}
+.footer-col-links a:hover{color:var(--white)}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.08);padding-top:32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+.footer-copy{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.35)}
+.footer-refs{font-size:10px;color:rgba(255,255,255,.25);max-width:400px;text-align:right}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  nav{padding:16px 32px}
+  nav.scrolled{padding:12px 32px}
+  .nav-links{display:none}
+  .hamburger{display:flex}
+  .sec{padding:80px 32px}
+  .prod-item{grid-template-columns:1fr;gap:40px}
+  .prod-item:nth-child(even){direction:ltr}
+  .swot-grid{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr 1fr;gap:40px}
+  .roadmap-timeline{padding-left:40px}
+  .roadmap-timeline::before{left:12px}
+  .roadmap-phase::before{left:-39px}
+}
+
+@media(max-width:640px){
+  .hero{padding:120px 20px 80px}
+  .sec{padding:64px 20px}
+  .features-grid{grid-template-columns:1fr;gap:20px}
+  .counter-band{grid-template-columns:1fr;padding:56px 20px}
+  .counter-item{border-right:none;border-bottom:1px solid rgba(255,255,255,.08)}
+  .counter-item:last-child{border-bottom:none}
+  .comp-grid{grid-template-columns:1fr;font-size:13px}
+  .comp-cell{padding:16px;border-right:none;text-align:left;justify-content:flex-start}
+  .footer-top{grid-template-columns:1fr;gap:40px}
+  .footer-bottom{flex-direction:column;text-align:center}
+  .footer-refs{text-align:center}
+  .carousel-arrow{width:40px;height:40px}
+  .carousel-nav{padding:0 12px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-brand">Persona<em>Core</em></a>
+  <ul class="nav-links">
+    <li><a href="#nasil-calisir">Nasıl Çalışır</a></li>
+    <li><a href="#ozellikler">Özellikler</a></li>
+    <li><a href="#urunler">Ürünler</a></li>
+    <li><a href="#mimari">Mimari</a></li>
+    <li><a href="#yol-haritasi">Yol Haritası</a></li>
+    <li><a href="#iletisim" class="nav-cta">İletişim</a></li>
+  </ul>
+  <div class="hamburger" id="hamburger" onclick="toggleMobile()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#nasil-calisir" onclick="closeMobile()">Nasıl Çalışır</a>
+  <a href="#ozellikler" onclick="closeMobile()">Özellikler</a>
+  <a href="#urunler" onclick="closeMobile()">Ürünler</a>
+  <a href="#mimari" onclick="closeMobile()">Mimari</a>
+  <a href="#yol-haritasi" onclick="closeMobile()">Yol Haritası</a>
+  <a href="#iletisim" onclick="closeMobile()">İletişim</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-texture"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-badge">
+    <span class="badge-dot"></span>
+    TURKCELL Yarının Teknoloji Liderleri
+  </div>
+  <h1>Persona<em>Core</em></h1>
+  <p class="hero-sub">
+    Telefon değiştirdikçe kimliğini, verini ve deneyimini kaybetme. 
+    PersonaCore ile dijital benliğin artık sende.
+  </p>
+  <div class="hero-actions">
+    <a href="#nasil-calisir" class="btn btn-primary">Nasıl Çalışır?</a>
+    <a href="#urunler" class="btn btn-ghost">Ürünleri Gör</a>
+  </div>
+
+  <div class="diagram-wrap">
+    <div class="diagram">
+      <div class="dtag core">🔹 PersonaCore Modülü</div>
+      <div class="chips-row">
+        <div class="chip">
+          <div class="chip-lbl">kimlik</div>
+          <div class="chip-val">RSA 4096</div>
+          <div class="chip-sub">256-bit AES</div>
+        </div>
+        <div class="chip">
+          <div class="chip-lbl">depo</div>
+          <div class="chip-val">128 GB</div>
+          <div class="chip-sub">UFS 3.1</div>
+        </div>
+        <div class="chip">
+          <div class="chip-lbl">bağlantı</div>
+          <div class="chip-val">USB-C</div>
+          <div class="chip-sub">5 Gb/s</div>
+        </div>
+        <div class="chip">
+          <div class="chip-lbl">pil</div>
+          <div class="chip-val">2000 mAh</div>
+          <div class="chip-sub">Qi kablosuz</div>
+        </div>
+      </div>
+      <div class="conn">
+        <span>BAĞLANTI</span>
+        <div class="conn-line"></div>
+        <span>USB-C / NFC / QI</span>
+      </div>
+      <div class="chip-os">Android · iOS · Harmony · Windows · macOS · Linux</div>
+      <div class="dtag host">🔸 Host Cihaz (Telefon/Tablet/PC)</div>
+      <div class="chips-row">
+        <div class="hchip">
+          <div class="chip-lbl">display</div>
+          <div class="chip-val">Host Ekran</div>
+        </div>
+        <div class="hchip">
+          <div class="chip-lbl">işlem</div>
+          <div class="chip-val">Host CPU</div>
+        </div>
+        <div class="hchip">
+          <div class="chip-lbl">bağlantı</div>
+          <div class="chip-val">Host 5G/WiFi</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COUNTER BAND -->
+<div class="counter-band reveal">
+  <div class="counter-item">
+    <div class="counter-num"><span class="cnum" data-target="62">0</span><span class="counter-suffix">M</span></div>
+    <div class="counter-label">ton e-atık oluşuyor (2022)</div>
+  </div>
+  <div class="counter-item">
+    <div class="counter-num"><span class="cnum" data-target="1400">0</span><span class="counter-suffix">$</span></div>
+    <div class="counter-label">ortalama telefon maliyeti</div>
+  </div>
+  <div class="counter-item">
+    <div class="counter-num"><span class="cnum" data-target="82">0</span><span class="counter-suffix">%</span></div>
+    <div class="counter-label">veri ihlallerinin sebebi insan faktörü</div>
+  </div>
+  <div class="counter-item">
+    <div class="counter-num"><span class="cnum" data-target="3">0</span><span class="counter-suffix">yıl</span></div>
+    <div class="counter-label">telefon ortalama kullanım süresi</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section id="nasil-calisir" class="sec">
+  <div class="eyebrow reveal">Nasıl Çalışır</div>
+  <h2 class="sec-title reveal">Dijital Kimliğini <em>Yanında Taşı</em></h2>
+  <p class="sec-desc reveal">PersonaCore, dijital kimliğini, verini ve kişiselleştirmelerini fiziksel bir modülde saklayan, dilediğin cihaza tak-çalıştır mantığıyla bağlanan yeni nesil mobil ekosistemdir.</p>
+  
+  <div class="features-grid">
+    <div class="feat-card reveal delay-1">
+      <div class="feat-icon blue">🔐</div>
+      <div class="feat-title">Tek Kimlik, Sonsuz Cihaz</div>
+      <div class="feat-desc">RSA 4096-bit şifreleme ile dijital kimliğin modülde güvende. İstediğin cihaza tak, hemen sen ol.</div>
+    </div>
+    <div class="feat-card reveal delay-2">
+      <div class="feat-icon green">📦</div>
+      <div class="feat-title">Kendi Verin Sahibi Ol</div>
+      <div class="feat-desc">Fotoğraflar, belgeler, uygulamalar — hepsi modülde. Cloud'a bağımlı değilsin, tamamen özgürsün.</div>
+    </div>
+    <div class="feat-card reveal delay-3">
+      <div class="feat-icon red">🔌</div>
+      <div class="feat-title">Tak-Çalıştır Deneyim</div>
+      <div class="feat-desc">USB-C, NFC veya Qi ile saniyeler içinde bağlan. Kurulum yok, ayar yok, sadece sen.</div>
+    </div>
+    <div class="feat-card reveal delay-4">
+      <div class="feat-icon purple">🌱</div>
+      <div class="feat-title">Sürdürülebilir Teknoloji</div>
+      <div class="feat-desc">Telefon eskidikçe atma — sadece host'u yenile. Modüler yaklaşım, minimum e-atık.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="ozellikler" class="sec" style="background:var(--bg2)">
+  <div class="eyebrow reveal">Özellikler</div>
+  <h2 class="sec-title reveal">Neden <em>PersonaCore?</em></h2>
+  <p class="sec-desc reveal">Güvenlik, özgürlük ve sürdürülebilirliği bir araya getiren çözüm.</p>
+  
+  <div class="features-grid">
+    <div class="feat-card reveal">
+      <div class="feat-icon blue">🛡️</div>
+      <div class="feat-title">Askeri Seviye Güvenlik</div>
+      <div class="feat-desc">RSA 4096-bit asimetrik şifreleme, 256-bit AES veri koruma, TPM 2.0 donanım güvenliği.</div>
+    </div>
+    <div class="feat-card reveal delay-1">
+      <div class="feat-icon green">⚡</div>
+      <div class="feat-title">Yüksek Hızlı Aktarım</div>
+      <div class="feat-desc">USB-C 3.2 Gen 1 ile 5 Gb/s veri hızı, UFS 3.1 depolama, düşük gecikme süresi.</div>
+    </div>
+    <div class="feat-card reveal delay-2">
+      <div class="feat-icon purple">🔋</div>
+      <div class="feat-title">Uzun Pil Ömrü</div>
+      <div class="feat-desc">2000 mAh entegre pil, Qi kablosuz şarj desteği, enerji tasarruflu standby modu.</div>
+    </div>
+    <div class="feat-card reveal delay-3">
+      <div class="feat-icon gold">🌍</div>
+      <div class="feat-title">Evrensel Uyumluluk</div>
+      <div class="feat-desc">Android, iOS, HarmonyOS, Windows, macOS, Linux — tüm platformlarda çalışır.</div>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon red">📱</div>
+      <div class="feat-title">Akıllı Sync</div>
+      <div class="feat-desc">Otomatik yedekleme, çoklu cihaz senkronizasyonu, bulut entegrasyonu (isteğe bağlı).</div>
+    </div>
+    <div class="feat-card reveal delay-1">
+      <div class="feat-icon blue">🎨</div>
+      <div class="feat-title">Kişiselleştirilebilir</div>
+      <div class="feat-desc">Tema, duvar kağıdı, uygulama düzeni — tüm kişiselleştirmeler modülde saklanır.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCT SHOWCASE -->
+<section id="urunler" class="prod-showcase">
+  <div class="prod-item reveal">
+    <div class="prod-content">
+      <h3>PersonaCore <em>Standart</em></h3>
+      <p>Günlük kullanım için tasarlanmış, şık ve kompakt modül. İş, okul ve kişisel kullanım için ideal dengeli çözüm.</p>
+      <div class="prod-specs">
+        <div class="spec-item">
+          <div class="spec-icon">💾</div>
+          <div class="spec-text">
+            <div class="spec-label">Depolama</div>
+            <div class="spec-value">128 GB UFS 3.1</div>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-icon">🔐</div>
+          <div class="spec-text">
+            <div class="spec-label">Güvenlik</div>
+            <div class="spec-value">RSA 4096 + AES 256</div>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-icon">🔌</div>
+          <div class="spec-text">
+            <div class="spec-label">Bağlantı</div>
+            <div class="spec-value">USB-C 3.2 + NFC</div>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-icon">🔋</div>
+          <div class="spec-text">
+            <div class="spec-label">Pil</div>
+            <div class="spec-value">2000 mAh Qi Wireless</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="prod-visual">
+      <div class="prod-img-carousel" id="carousel-p1">
+        <div class="prod-img-slide active" data-index="0">
+          <img src="images/productSt-1.png" alt="PersonaCore Standart Ön">
+        </div>
+        <div class="prod-img-slide" data-index="1">
+          <img src="images/productSt-3.png" alt="PersonaCore Standart Ayrık">
+        </div>
+        <div class="prod-img-slide" data-index="2">
+          <img src="images/productSt-2.jpg" alt="PersonaCore Standart Telefonda">
+        </div>
+        <div class="prod-img-slide" data-index="3">
+          <img src="images/productSt-4.png" alt="PersonaCore Standart Detay">
+        </div>
+        <div class="carousel-nav">
+          <div class="carousel-arrow carousel-prev" onclick="prevSlide('p1')">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </div>
+          <div class="carousel-arrow carousel-next" onclick="nextSlide('p1')">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+        </div>
+      </div>
+      <div class="prod-img-dots" id="dots-p1">
+        <div class="pdot active" onclick="goToSlide('p1', 0)"></div>
+        <div class="pdot" onclick="goToSlide('p1', 1)"></div>
+        <div class="pdot" onclick="goToSlide('p1', 2)"></div>
+        <div class="pdot" onclick="goToSlide('p1', 3)"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="prod-item reveal">
+    <div class="prod-content">
+      <h3>PersonaCore <em>Pro</em></h3>
+      <p>Profesyoneller için gelişmiş güvenlik ve performans. Büyük veri, yoğun iş yükü ve maksimum koruma.</p>
+      <div class="prod-specs">
+        <div class="spec-item">
+          <div class="spec-icon">💾</div>
+          <div class="spec-text">
+            <div class="spec-label">Depolama</div>
+            <div class="spec-value">512 GB UFS 4.0</div>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-icon">🔐</div>
+          <div class="spec-text">
+            <div class="spec-label">Güvenlik</div>
+            <div class="spec-value">RSA 4096 + Secure Enclave</div>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-icon">🔌</div>
+          <div class="spec-text">
+            <div class="spec-label">Bağlantı</div>
+            <div class="spec-value">USB-C 4.0 + NFC + Bluetooth</div>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-icon">🔋</div>
+          <div class="spec-text">
+            <div class="spec-label">Pil</div>
+            <div class="spec-value">3500 mAh Fast Charge</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="prod-visual">
+      <div class="prod-img-carousel" id="carousel-p2">
+        <div class="prod-img-slide active" data-index="0">
+          <img src="images/productPro-1.png" alt="PersonaCore Pro PCB İç Yapı">
+        </div>
+        <div class="prod-img-slide" data-index="1">
+          <img src="images/productPro-2.png" alt="PersonaCore Pro Telefonda">
+        </div>
+        <div class="prod-img-slide" data-index="2">
+          <img src="images/productPro-3.png" alt="PersonaCore Pro Detay">
+        </div>
+        <div class="prod-img-slide" data-index="3">
+          <img src="images/productPro-4.png" alt="PersonaCore Pro Perspektif">
+        </div>
+        <div class="carousel-nav">
+          <div class="carousel-arrow carousel-prev" onclick="prevSlide('p2')">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </div>
+          <div class="carousel-arrow carousel-next" onclick="nextSlide('p2')">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+        </div>
+      </div>
+      <div class="prod-img-dots" id="dots-p2">
+        <div class="pdot active" onclick="goToSlide('p2', 0)"></div>
+        <div class="pdot" onclick="goToSlide('p2', 1)"></div>
+        <div class="pdot" onclick="goToSlide('p2', 2)"></div>
+        <div class="pdot" onclick="goToSlide('p2', 3)"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section id="karsilastirma" class="sec">
+  <div class="eyebrow reveal">Karşılaştırma</div>
+  <h2 class="sec-title reveal">PersonaCore <em>vs</em> Geleneksel Çözümler</h2>
+  <p class="sec-desc reveal">Mevcut sistemlerle kıyasladığımızda PersonaCore'un üstünlükleri açıkça görülüyor.</p>
+  
+  <div class="comparison-table reveal">
+    <div class="comp-head">
+      <h3>Detaylı Karşılaştırma Tablosu</h3>
+    </div>
+    <div class="comp-grid">
+      <div class="comp-row">
+        <div class="comp-cell head">Özellik</div>
+        <div class="comp-cell head">PersonaCore</div>
+        <div class="comp-cell head">Cloud Depolama</div>
+        <div class="comp-cell head">Geleneksel Telefon</div>
+      </div>
+      <div class="comp-row">
+        <div class="comp-cell head">Veri Güvenliği</div>
+        <div class="comp-cell highlight"><span class="check">✓</span> Donanım Şifreleme</div>
+        <div class="comp-cell"><span class="cross">×</span> Sunucu Bağımlı</div>
+        <div class="comp-cell"><span class="cross">×</span> Cihaz Bağımlı</div>
+      </div>
+      <div class="comp-row">
+        <div class="comp-cell head">Gizlilik</div>
+        <div class="comp-cell highlight"><span class="check">✓</span> Tam Kontrol</div>
+        <div class="comp-cell"><span class="cross">×</span> 3. Taraf Erişimi</div>
+        <div class="comp-cell"><span class="cross">×</span> OS Bağımlı</div>
+      </div>
+      <div class="comp-row">
+        <div class="comp-cell head">Taşınabilirlik</div>
+        <div class="comp-cell highlight"><span class="check">✓</span> Cihazlar Arası</div>
+        <div class="comp-cell"><span class="check">✓</span> İnternet Gerekli</div>
+        <div class="comp-cell"><span class="cross">×</span> Tek Cihaz</div>
+      </div>
+      <div class="comp-row">
+        <div class="comp-cell head">Çevresel Etki</div>
+        <div class="comp-cell highlight"><span class="check">✓</span> Modüler</div>
+        <div class="comp-cell"><span class="cross">×</span> Veri Merkezi Maliyeti</div>
+        <div class="comp-cell"><span class="cross">×</span> E-Atık Yoğun</div>
+      </div>
+      <div class="comp-row">
+        <div class="comp-cell head">Abonelik Ücreti</div>
+        <div class="comp-cell highlight"><span class="check">✓</span> Tek Seferlik</div>
+        <div class="comp-cell"><span class="cross">×</span> Aylık/Yıllık</div>
+        <div class="comp-cell"><span class="check">✓</span> Tek Seferlik</div>
+      </div>
+      <div class="comp-row">
+        <div class="comp-cell head">Çevrimdışı Erişim</div>
+        <div class="comp-cell highlight"><span class="check">✓</span> Her Zaman</div>
+        <div class="comp-cell"><span class="cross">×</span> Sınırlı</div>
+        <div class="comp-cell"><span class="check">✓</span> Her Zaman</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SWOT ANALYSIS -->
+<section id="swot" class="sec" style="background:var(--bg2)">
+  <div class="eyebrow reveal">Analiz</div>
+  <h2 class="sec-title reveal">SWOT <em>Analizi</em></h2>
+  <p class="sec-desc reveal">PersonaCore'un güçlü yanları, zayıflıkları, fırsatları ve tehditleri.</p>
+  
+  <div class="swot-grid">
+    <div class="swot-card strengths reveal">
+      <div class="swot-title">Güçlü Yönler (Strengths)</div>
+      <ul class="swot-list">
+        <li>Benzersiz modüler donanım-yazılım ekosistemi</li>
+        <li>Askeri seviye donanım şifreleme (RSA 4096)</li>
+        <li>Çoklu platform desteği (Android, iOS, Windows...)</li>
+        <li>Sürdürülebilir ve çevre dostu tasarım</li>
+        <li>Abonelik gerektirmeyen maliyet modeli</li>
+        <li>Patent alınabilir teknoloji</li>
+      </ul>
+    </div>
+    
+    <div class="swot-card weaknesses reveal delay-1">
+      <div class="swot-title">Zayıf Yönler (Weaknesses)</div>
+      <ul class="swot-list">
+        <li>Yeni ürün olarak pazar bilinirliği düşük</li>
+        <li>Fiziksel modül kaybolma/hasar riski</li>
+        <li>İlk üretim maliyetleri yüksek olabilir</li>
+        <li>Üçüncü taraf geliştirici ekosistemi henüz yok</li>
+        <li>Host cihazlarda uyumluluk testleri gerekli</li>
+      </ul>
+    </div>
+    
+    <div class="swot-card opportunities reveal delay-2">
+      <div class="swot-title">Fırsatlar (Opportunities)</div>
+      <ul class="swot-list">
+        <li>Artan veri gizliliği farkındalığı</li>
+        <li>Küresel e-atık düzenlemeleri</li>
+        <li>Kurumsal güvenlik çözümleri talebi</li>
+        <li>Gelişen pazar ülkelerinde büyüme</li>
+        <li>IoT ve wearable entegrasyonu potansiyeli</li>
+        <li>Açık kaynak topluluk desteği</li>
+      </ul>
+    </div>
+    
+    <div class="swot-card threats reveal delay-3">
+      <div class="swot-title">Tehditler (Threats)</div>
+      <ul class="swot-list">
+        <li>Apple/Samsung gibi büyük oyuncuların kopyası</li>
+        <li>Bulut tabanlı çözümlerin yaygınlığı</li>
+        <li>5G ve düşük gecikmeli cloud hizmetler</li>
+        <li>USB-C standardizasyonu değişiklikleri</li>
+        <li>Siber güvenlik tehditleri ve yeni saldırı vektörleri</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- EXPLODED VIEW -->
+<section id="exploded" class="exploded-sec">
+  <div class="exp-container">
+    <div class="eyebrow reveal" style="color:var(--ink)">3D Katman Görünümü</div>
+    <h2 class="sec-title reveal">PersonaCore <em>İç Yapısı</em></h2>
+    <p class="sec-desc reveal">Modülün katmanlı mimarisi ve her bileşenin işlevi.</p>
+    
+    <div class="exp-stack reveal" id="expStack">
+      <div class="exp-layer">
+        <div class="exp-layer-title">Katman 5 · Güvenlik Katmanı</div>
+        <div class="exp-layer-desc">TPM 2.0 Chip, RSA 4096 şifreleme, biyometrik doğrulama ve Secure Enclave</div>
+      </div>
+      <div class="exp-layer">
+        <div class="exp-layer-title">Katman 4 · İşlemci & Bellek</div>
+        <div class="exp-layer-desc">ARM Cortex-M7 MCU, 4 GB LPDDR4X RAM, GPU co-processor</div>
+      </div>
+      <div class="exp-layer">
+        <div class="exp-layer-title">Katman 3 · Depolama</div>
+        <div class="exp-layer-desc">128/512 GB UFS 3.1/4.0 NAND Flash, wear-leveling, ECC koruması</div>
+      </div>
+      <div class="exp-layer">
+        <div class="exp-layer-title">Katman 2 · Bağlantı & Güç</div>
+        <div class="exp-layer-desc">USB-C 3.2/4.0 controller, NFC chip, Qi wireless coil, 2000-3500 mAh batarya</div>
+      </div>
+      <div class="exp-layer">
+        <div class="exp-layer-title">Katman 1 · Kasa & Soğutma</div>
+        <div class="exp-layer-desc">Anodize alüminyum kasa, ısı dağıtım levhası, darbe emici polimer</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BLUEPRINT -->
+<section id="blueprint" class="blueprint-sec">
+  <div class="eyebrow reveal" style="color:rgba(255,255,255,.6)">Teknik Şema</div>
+  <h2 class="sec-title reveal" style="color:var(--white)">PersonaCore <em>Blueprint</em></h2>
+  <p class="sec-desc reveal" style="color:rgba(255,255,255,.7)">Donanım ve yazılım bileşenlerinin detaylı teknik özellikleri.</p>
+  
+  <div class="blueprint-diagram reveal">
+    <div class="bp-element">
+      <div class="bp-element-title">01 · Güvenlik Modülü</div>
+      <div class="bp-element-name">Crypto Engine</div>
+      <div class="bp-element-spec">RSA-4096 | AES-256-GCM | ECC P-384 | SHA-3 | TPM 2.0</div>
+    </div>
+    <div class="bp-element">
+      <div class="bp-element-title">02 · İşlemci</div>
+      <div class="bp-element-name">ARM Cortex-M7 @ 400MHz</div>
+      <div class="bp-element-spec">FPU | DSP Extensions | 1MB L2 Cache | TrustZone</div>
+    </div>
+    <div class="bp-element">
+      <div class="bp-element-title">03 · Depolama</div>
+      <div class="bp-element-name">UFS 3.1/4.0 NAND</div>
+      <div class="bp-element-spec">Sequential Read: 2100 MB/s | Random IOPS: 80K | LDPC ECC</div>
+    </div>
+    <div class="bp-element">
+      <div class="bp-element-title">04 · Bağlantı</div>
+      <div class="bp-element-name">Multi-Protocol Interface</div>
+      <div class="bp-element-spec">USB-C 3.2 Gen 1 (5Gb/s) | NFC Type-A | Qi 1.3 (15W)</div>
+    </div>
+    <div class="bp-element">
+      <div class="bp-element-title">05 · Güç Yönetimi</div>
+      <div class="bp-element-name">Power Management IC</div>
+      <div class="bp-element-spec">2000-3500 mAh Li-Po | Fast Charge 18W | Sleep Mode <1mA</div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="yol-haritasi" class="sec">
+  <div class="eyebrow reveal">Yol Haritası</div>
+  <h2 class="sec-title reveal">PersonaCore <em>Geleceği</em></h2>
+  <p class="sec-desc reveal">2025'ten 2027'ye uzanan geliştirme, üretim ve pazar lansmanı planımız.</p>
+  
+  <div class="roadmap-timeline">
+    <div class="roadmap-phase reveal">
+      <div class="roadmap-date">Q1-Q2 2025</div>
+      <div class="roadmap-title">Faz 1: Araştırma & Prototip</div>
+      <div class="roadmap-desc">Donanım tasarımı, yazılım mimarisi ve ilk prototip üretimi. Turkcell Yarının Teknoloji Liderleri </div>
+      <div class="roadmap-items">
+        <div class="roadmap-item">PCB tasarımı ve bileşen seçimi</div>
+        <div class="roadmap-item">Güvenlik protokollerinin tasarımı</div>
+        <div class="roadmap-item">İlk işlevsel prototip</div>
+        <div class="roadmap-item">Patent başvurusu</div>
+      </div>
+    </div>
+    
+    <div class="roadmap-phase reveal">
+      <div class="roadmap-date">Q3-Q4 2025</div>
+      <div class="roadmap-title">Faz 2: Geliştirme & Test</div>
+      <div class="roadmap-desc">Platform uyumluluğu testleri, güvenlik denetimleri ve beta programı lansmanı.</div>
+      <div class="roadmap-items">
+        <div class="roadmap-item">Android/iOS/Windows entegrasyonu</div>
+        <div class="roadmap-item">Güvenlik penetrasyon testleri</div>
+        <div class="roadmap-item">50 kişilik beta programı</div>
+        <div class="roadmap-item">SDK ve API geliştirme</div>
+        <div class="roadmap-item">Ölçeklenebilirlik testleri</div>
+      </div>
+    </div>
+    
+    <div class="roadmap-phase reveal">
+      <div class="roadmap-date">Q1-Q4 2026</div>
+      <div class="roadmap-title">Faz 3: Üretim & Lansman</div>
+      <div class="roadmap-desc">Seri üretim, ön-sipariş kampanyası ve Türkiye pazarında ilk satışlar.</div>
+      <div class="roadmap-items">
+        <div class="roadmap-item">10.000 adetlik ilk parti üretimi</div>
+        <div class="roadmap-item">Turkcell distribütörlük anlaşması</div>
+        <div class="roadmap-item">E-ticaret ve retail lansmanı</div>
+        <div class="roadmap-item">Geliştirici topluluk oluşturma</div>
+        <div class="roadmap-item">Kurumsal müşteri pilotu (5 firma)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SDG CONNECTION -->
+<section id="sdg" class="sec" style="background:var(--bg2)">
+  <div class="eyebrow reveal">Küresel Hedefler</div>
+  <h2 class="sec-title reveal">BM Sürdürülebilir <em>Kalkınma Hedefleri</em></h2>
+  <p class="sec-desc reveal">PersonaCore, Birleşmiş Milletler'in 17 Sürdürülebilir Kalkınma Hedefi'nden 4 tanesine doğrudan katkı sağlar.</p>
+  
+  <div class="sdg-grid">
+    <div class="sdg-card reveal">
+      <div class="sdg-icon">🏭</div>
+      <div class="sdg-title">SDG 9: Sanayi, Yenilikçilik ve Altyapı</div>
+      <div class="sdg-desc">Yenilikçi donanım-yazılım entegrasyonu ile mobil teknolojide paradigma değişimi.</div>
+    </div>
+    <div class="sdg-card reveal delay-1">
+      <div class="sdg-icon">🌱</div>
+      <div class="sdg-title">SDG 12: Sorumlu Üretim ve Tüketim</div>
+      <div class="sdg-desc">Modüler tasarım ile e-atık azaltma, cihaz ömrünü uzatma ve döngüsel ekonomiye geçiş.</div>
+    </div>
+    <div class="sdg-card reveal delay-2">
+      <div class="sdg-icon">⚖️</div>
+      <div class="sdg-title">SDG 16: Barış, Adalet ve Güçlü Kurumlar</div>
+      <div class="sdg-desc">Veri gizliliği ve güvenlik hakkını demokratikleştirerek dijital özgürlük sağlama.</div>
+    </div>
+    <div class="sdg-card reveal delay-3">
+      <div class="sdg-icon">🤝</div>
+      <div class="sdg-title">SDG 17: Hedefler İçin Ortaklıklar</div>
+      <div class="sdg-desc">Açık kaynak ekosistemi ve geliştirici topluluğu ile küresel iş birliği.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="iletisim" class="contact-sec">
+  <div class="contact-container reveal">
+    <h2>Projemiz Hakkında <em>Konuşalım</em></h2>
+    <p>PersonaCore hakkında daha fazla bilgi almak, demo talep etmek veya iş birliği fırsatlarını görüşmek için bizimle iletişime geçin.</p>
+    <div class="contact-form">
+      <div class="form-group">
+        <input type="text" class="form-input" placeholder="Adınız Soyadınız">
+        <input type="email" class="form-input" placeholder="E-posta Adresiniz">
+      </div>
+      <input type="text" class="form-input" placeholder="Konu">
+      <textarea class="form-input" placeholder="Mesajınız"></textarea>
+      <a href="#" class="btn-white">Gönder →</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-brand">Persona<em>Core</em></div>
+      <div class="footer-about">Cihaz merkezli mobil dünyayı kimlik merkezli bir geleceğe taşıyan modüler donanım ve yazılım ekosistemi.</div>
+      <div class="footer-socials">
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Proje</div>
+      <ul class="footer-col-links">
+        <li><a href="#nasil-calisir">Nasıl Çalışır</a></li>
+        <li><a href="#ozellikler">Özellikler</a></li>
+        <li><a href="#urunler">Ürün Görselleri</a></li>
+        <li><a href="#mimari">Mimari</a></li>
+        <li><a href="#yol-haritasi">Yol Haritası</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Analiz</div>
+      <ul class="footer-col-links">
+        <li><a href="#sdg">SDG Bağlantısı</a></li>
+        <li><a href="#karsilastirma">Karşılaştırma</a></li>
+        <li><a href="#swot">SWOT Analizi</a></li>
+        <li><a href="#exploded">3D Görünüm</a></li>
+        <li><a href="#blueprint">Teknik Şema</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">İletişim</div>
+      <ul class="footer-col-links">
+        <li><a href="/cdn-cgi/l/email-protection#224b4c444d62524750514d4c43414d50470c5647414a"><span class="__cf_email__" data-cfemail="056c6b636a45756077766a6b64666a77602b7160666d">[email&#160;protected]</span></a></li>
+        <li><a href="#iletisim">İletişim Formu</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2025–2026 PersonaCore · Yarının Teknoloji Liderleri · Turkcell</div>
+    <div class="footer-refs">Kaynaklar: UN Global E-waste Monitor 2024 · GSMA Mobile Industry Report 2023 · OECD Digital Security Outlook 2023</div>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* NAV SCROLL */
+const nav=document.getElementById('navbar');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>60));
+
+/* MOBILE MENU */
+const ham=document.getElementById('hamburger'),mob=document.getElementById('mobileMenu');
+function toggleMobile(){ham.classList.toggle('open');mob.classList.toggle('open')}
+function closeMobile(){ham.classList.remove('open');mob.classList.remove('open')}
+
+/* SCROLL REVEAL */
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')})},{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal,.reveal-l,.reveal-r').forEach(el=>obs.observe(el));
+
+/* COUNTER ANIMATION */
+function animCounter(el){
+  const target=+el.dataset.target,duration=1800;
+  let start=null;
+  const step=ts=>{
+    if(!start)start=ts;
+    const p=Math.min((ts-start)/duration,1);
+    const ease=p<.5?4*p*p*p:(p-1)*(2*p-2)*(2*p-2)+1;
+    el.textContent=Math.round(ease*target);
+    if(p<1)requestAnimationFrame(step);else el.textContent=target;
+  };
+  requestAnimationFrame(step);
+}
+const cobs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){document.querySelectorAll('.cnum').forEach(animCounter);cobs.disconnect()}})},{threshold:.5});
+const band=document.querySelector('.counter-band');
+if(band)cobs.observe(band);
+
+/* 3D PARALLAX */
+const expStack=document.getElementById('expStack');
+if(expStack){
+  let tX=0,tY=0,cX=0,cY=0;
+  document.addEventListener('mousemove',e=>{
+    const cx=window.innerWidth/2,cy=window.innerHeight/2;
+    tX=(e.clientX-cx)/cx*7;tY=(e.clientY-cy)/cy*4;
+  });
+  function animExp(){cX+=(tX-cX)*.06;cY+=(tY-cY)*.06;expStack.style.transform=`rotateX(${18-cY}deg) rotateY(${-10+cX}deg)`;requestAnimationFrame(animExp);}
+  animExp();
+}
+
+/* LAYER HOVER HIGHLIGHT */
+document.querySelectorAll('.exp-layer').forEach(layer=>{
+  layer.addEventListener('mouseenter',()=>{document.querySelectorAll('.exp-layer').forEach(l=>l.style.opacity='0.4');layer.style.opacity='1';});
+  layer.addEventListener('mouseleave',()=>{document.querySelectorAll('.exp-layer').forEach(l=>{l.style.opacity='1';});});
+});
+
+/* MODERN CAROUSEL */
+const carousels = {
+  p1: {current: 0, total: 4},
+  p2: {current: 0, total: 4}
+};
+
+function updateCarousel(id) {
+  const carousel = document.getElementById(`carousel-${id}`);
+  const dots = document.getElementById(`dots-${id}`);
+  const slides = carousel.querySelectorAll('.prod-img-slide');
+  const dotElements = dots.querySelectorAll('.pdot');
+  
+  slides.forEach((slide, idx) => {
+    slide.classList.toggle('active', idx === carousels[id].current);
+  });
+  
+  dotElements.forEach((dot, idx) => {
+    dot.classList.toggle('active', idx === carousels[id].current);
+  });
+}
+
+function nextSlide(id) {
+  carousels[id].current = (carousels[id].current + 1) % carousels[id].total;
+  updateCarousel(id);
+}
+
+function prevSlide(id) {
+  carousels[id].current = (carousels[id].current - 1 + carousels[id].total) % carousels[id].total;
+  updateCarousel(id);
+}
+
+function goToSlide(id, index) {
+  carousels[id].current = index;
+  updateCarousel(id);
+}
+
+/* KEYBOARD NAVIGATION */
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'ArrowLeft') {
+    prevSlide('p1');
+    prevSlide('p2');
+  } else if(e.key === 'ArrowRight') {
+    nextSlide('p1');
+    nextSlide('p2');
+  }
+});
+
+/* TOUCH SWIPE SUPPORT */
+let touchStartX = 0;
+let touchEndX = 0;
+
+document.querySelectorAll('.prod-img-carousel').forEach(carousel => {
+  carousel.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+  });
+  
+  carousel.addEventListener('touchend', e => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe(carousel.id);
+  });
+});
+
+function handleSwipe(carouselId) {
+  const id = carouselId.replace('carousel-', '');
+  if (touchEndX < touchStartX - 50) nextSlide(id);
+  if (touchEndX > touchStartX + 50) prevSlide(id);
+}
+</script>
+
+</body>
+</html>
 
